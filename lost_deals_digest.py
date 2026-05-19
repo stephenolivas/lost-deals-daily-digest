@@ -102,9 +102,24 @@ def build_message(deals):
         f"*{len(deals)} deal{plural} lost yesterday:*",
         "",
     ]
+
+    # Group deals by Lost Reason
+    groups = {}
     for d in deals:
-        reason = d["reason"] if d["reason"] else "_No reason given_"
-        lines.append(f"• *{d['name']}* | {reason} | <{d['url']}|View in Close>")
+        reason = d["reason"] if d["reason"] else "No reason given"
+        groups.setdefault(reason, []).append(d)
+
+    # Sort: most common first, but force "No reason given" to the bottom.
+    def sort_key(item):
+        reason, group_deals = item
+        is_no_reason = reason == "No reason given"
+        return (is_no_reason, -len(group_deals), reason.lower())
+
+    for reason, group_deals in sorted(groups.items(), key=sort_key):
+        lines.append(f"*{reason}* ({len(group_deals)})")
+        for d in sorted(group_deals, key=lambda x: x["name"].lower()):
+            lines.append(f"• {d['name']} | <{d['url']}|View in Close>")
+        lines.append("")
 
     return "\n".join(lines).rstrip()
 
