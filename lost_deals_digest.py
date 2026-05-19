@@ -104,10 +104,7 @@ def build_message(deals):
     ]
     for d in deals:
         reason = d["reason"] if d["reason"] else "_No reason given_"
-        lines.append(f"• *{d['name']}*")
-        lines.append(f"    • Lost Reason: {reason}")
-        lines.append(f"    • <{d['url']}|View in Close>")
-        lines.append("")
+        lines.append(f"• *{d['name']}* | {reason} | <{d['url']}|View in Close>")
 
     return "\n".join(lines).rstrip()
 
