@@ -1,0 +1,28 @@
+name: Lost Deals Daily Digest
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Backup only — primary trigger should be cron-job.org configured
+    # for 8:00 AM America/Los_Angeles so DST is handled correctly.
+    # 16:00 UTC = 8am PST (winter) / 9am PDT (summer).
+    - cron: '0 16 * * *'
+
+jobs:
+  digest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run digest
+        env:
+          CLOSE_API_KEY: ${{ secrets.CLOSE_API_KEY }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        run: python lost_deals_digest.py
