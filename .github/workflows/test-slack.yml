@@ -1,0 +1,25 @@
+name: Test Slack (manual)
+
+# Manual trigger only — fires test_slack.py from the Actions tab to verify
+# the bot token + scopes are working end-to-end before the real cron runs.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Send test Slack message
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        run: python test_slack.py
