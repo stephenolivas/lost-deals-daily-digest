@@ -24,7 +24,7 @@ from zoneinfo import ZoneInfo
 CLOSE_API_KEY = os.environ["CLOSE_API_KEY"]
 SLACK_BOT_TOKEN = os.environ["SLACK_BOT_TOKEN"]
 
-SLACK_USER_ID = "U0AE7QUGP42"  # Michael Schultheiss
+SLACK_USER_ID = "U0A7QRN25S8"  # Michael Schultheiss
 LOST_REASON_FIELD = "cf_R4i05fLNOQP8yveAs4ofTMMYGAQnkLLklunP4lov2Bt"
 LOST_STATUS_LABEL = "💔 Lost"
 
