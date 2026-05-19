@@ -2,11 +2,6 @@ name: Lost Deals Daily Digest
 
 on:
   workflow_dispatch:
-  schedule:
-    # Backup only — primary trigger should be cron-job.org configured
-    # for 8:00 AM America/Los_Angeles so DST is handled correctly.
-    # 16:00 UTC = 8am PST (winter) / 9am PDT (summer).
-    - cron: '0 16 * * *'
 
 jobs:
   digest:
