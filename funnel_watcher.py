@@ -29,7 +29,7 @@ FUNNEL_FIELD_PATH = f"custom.{FUNNEL_FIELD_ID}"
 # Digest pattern. Swap this ID if the recipient changes; no redeploy needed
 # beyond the commit.
 # TODO: replace with Stephen's actual Slack user ID before first run.
-SLACK_USER_ID = "REPLACE_WITH_STEPHEN_SLACK_ID"  # e.g. "U01234ABCDE"
+SLACK_USER_ID = "U0A7QRN25S8"  # e.g. "U01234ABCDE"
 
 # 15-minute cron + 3-minute buffer for GitHub Actions cron drift. If drift
 # exceeds 3 minutes we can miss events, so keep an eye on run timing.
