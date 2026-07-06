@@ -29,7 +29,7 @@ FUNNEL_FIELD_PATH = f"custom.{FUNNEL_FIELD_ID}"
 # Digest pattern. Swap this ID if the recipient changes; no redeploy needed
 # beyond the commit.
 # TODO: replace with Stephen's actual Slack user ID before first run.
-SLACK_USER_ID = "U0A7QRN25S8"  # e.g. "U01234ABCDE"
+SLACK_USER_ID = "REPLACE_WITH_STEPHEN_SLACK_ID"  # e.g. "U01234ABCDE"
 
 # 15-minute cron + 3-minute buffer for GitHub Actions cron drift. If drift
 # exceeds 3 minutes we can miss events, so keep an eye on run timing.
@@ -81,7 +81,13 @@ def get_api_user():
 def fetch_lead_update_events(lookback_minutes):
     """
     Fetch lead update events from the past `lookback_minutes`.
-    Paginated. Returns a list.
+    Cursor-paginated. Returns a list.
+
+    Notes from Close's docs on /event/:
+      - `_skip` is NOT supported — must use `_cursor` for pagination.
+      - `_limit` caps at 50; default 50.
+      - Events ordered by date_updated DESC.
+      - Supported filter combo we use: object_type + action.
     """
     cutoff = datetime.now(timezone.utc) - timedelta(minutes=lookback_minutes)
     cutoff_iso = cutoff.isoformat()
@@ -92,25 +98,32 @@ def fetch_lead_update_events(lookback_minutes):
     )
 
     events = []
-    skip = 0
+    cursor = None
+    page   = 0
+
     while True:
-        data = close_get("/event/", params={
+        params = {
             "object_type":      "lead",
             "action":           "updated",
             "date_updated__gt": cutoff_iso,
-            "_skip":            skip,
-            "_limit":           100,
-        })
+            "_limit":           50,
+        }
+        if cursor:
+            params["_cursor"] = cursor
+
+        data = close_get("/event/", params=params)
         batch = data.get("data", []) or []
         events.extend(batch)
-        if not batch or not data.get("has_more"):
+        page += 1
+
+        cursor = data.get("cursor_next")
+        if not cursor or not batch:
             break
-        skip += 100
-        if skip >= 5000:  # sanity cap; 15-min windows shouldn't need this
-            log.warning("Hit 5k event scan cap; results may be incomplete")
+        if page >= 20:  # sanity cap: 20 pages × 50 = 1000 events per run
+            log.warning("Hit page cap of 20 (~1000 events); results may be incomplete")
             break
 
-    log.info("Fetched %d lead update events total", len(events))
+    log.info("Fetched %d lead update events total across %d page(s)", len(events), page)
     return events
 
 
